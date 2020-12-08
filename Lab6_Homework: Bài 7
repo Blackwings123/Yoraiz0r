@@ -1,0 +1,17 @@
+void FindMax(int a[][100], int n, int m)
+{
+	int row = 0;
+	int ln = a[0][0];
+	for (int i = 0; i< n; i++)
+	{
+		for (int j = 0; j < m; j++)
+		{
+			if (a[i][j] > ln)
+			{
+				ln = a[i][j];
+				row = i;
+			}
+		}
+	}
+	printf("\n The row with the largest total value in the matrix is: %d", row);
+}
