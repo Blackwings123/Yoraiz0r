@@ -58,7 +58,8 @@ void printCardsShuffling(int deck[][FACES], const char* suits[], const char* fac
 	}
 }
 
-// 1. Poker cho 1 nguoi choi:
+//												 1. Poker cho 1 nguoi choi:
+// Ham de chia bai den nguoi choi
 int** dealingForHand(int deck[SUITS][FACES])
 {
 	int** a = new int *[5];
@@ -105,6 +106,8 @@ void Sort(int** &hand)
 
 // Xet Sanh (  5 quan bai lien tiep , khong dong chat )
 int isStraight(int** hand){
+	Sort(hand);
+	int count = 0;
 	if (hand[4][1] == 12 && hand[0][1] == 9)
 	{
 		for (int i = 1; i < 5; i++)
@@ -138,6 +141,7 @@ int isFlush(int** hand) {
 
 // Xet Thung Pha Sanh ( 5 quan bai lien tiep , dong chat )
 int isStraightFlush(int** hand){
+	Sort(hand);
 	if (isStraight(hand) != 0 && isFlush(hand) != 0)
 	{
 		return 8;
@@ -160,25 +164,17 @@ int isFourOfAKind(int** hand) {
 }
 
 // Xet Cu Lu ( 1 Pair va 1 Three of a kind )
-int isFullhouse(int** hand)
-{
-	int b[14] = { 0 };
-	for (int i = 0; i < 5; i++)
-	{
-		b[hand[i][1]] += 1;
+int isFullhouse(int** hand) {
+	Sort(hand);
+	int count = 0;
+	for (int i = 0; i < 4; i++) {
+		if (hand[i][1] == hand[i + 1][1]) count++;
 	}
-	int triple = 0;
-	int pair = 0;
-	for (int i = 1; i < 14; i++)
-	{
-		if (b[i] == 3)
-			triple++;
-		if (b[i] == 2)
-			pair++;
+	for (int i = 0; i < 3; i++) {
+		if (hand[i][1] == hand[i + 1][1] && hand[i][1] == hand[i + 2][1]) count++;
 	}
-	if (triple == 1 && pair == 1)
-		return 6;
-	return 0;
+	if (count == 4) return 6;
+	else return 0;
 }
 
 // Xet Sam Co ( 3 con giong nhau )
@@ -206,8 +202,8 @@ int isTwoPairs(int** hand) {
 	for (int i = 0; i < 3; i++) {
 		if (hand[i][1] == hand[i + 1][1] && hand[i][1] == hand[i + 2][1]) count++;
 	}
-	if (count == 2) return 2;
-    return 0;
+	if (count == 2 && !(isFullhouse(hand))) return 2;
+	else return 0;
 }
 
 // Xet doi ( 2 con giong nhau)
@@ -218,29 +214,45 @@ int isPair(int** hand) {
 		if (hand[i][1] == hand[i + 1][1]) count++;
 	}
 	if (count == 1) return 1;
-	 return 0;
+	else return 0;
 }
 
 // Xet bai cao nhat ( chi trong truong hop bai trong tay khong roi vao nhung truong hop bai con lai ) 
 int getHighestCard(int** hand)
 {
 	Sort(hand);
-	int count = 0;
-	int max = -9999;
-	int i = 0;
-	for (; i < 5; i++)
+	char max = 0;
+	int res;
+	for (int i = 0; i < 5; i++)
 	{
 		for (int j = i + 1; j < 5; j++) {
-			if (hand[i][1] < hand[j][1])
-				max = j;
-			else if (hand[i][1] = hand[j][1])
-				count++;
+			if (hand[i][1] < hand[j][1] && hand[j][1] > max)
+				max = hand[j][1];
 		}
 	}
-	if (count == 4) cout << "You have a highest card";
+	for (int i = 0; i<5; i++){
+		if (hand[i][1] == max){
+			res = i;
+			break;
+		}
+	}
+	if (max == 0) return max = '2';
+	if (max == 1) return max = '3';
+	if (max == 2) return max = '4';
+	if (max == 3) return max = '5';
+	if (max == 4) return max = '6';
+	if (max == 5) return max = '7';
+	if (max == 6) return max = '8';
+	if (max == 7) return max = '9';
+	if (max == 8) return max = '10';
+	if (max == 9) return max = 'J';
+	if (max == 10)return max = 'Q';
+	if (max == 11)return max = 'K';
+	if (max == 12)return max = 'A';
 	return max;
 }
 
+// Ham de kiem tra bai duoc nguoi dung truc tiep nhap vao
 int** createHandTest(int deck[SUITS][FACES], int a[]){
 	int** r = new int *[5];
 	for (int i = 0; i < 5; i++)
@@ -263,29 +275,43 @@ int** createHandTest(int deck[SUITS][FACES], int a[]){
 				}
 			}
 		}
-		
+
 	}
 	printHand(r, suits, faces);
-	if (isFlush(r))
-		cout << " You have a Flush ";
-	if (isStraight(r))
-		cout << " You have a Straight";
 	if (isStraightFlush(r))
+	{
 		cout << " You Have a Straight of Flush !!! Impressive !!!";
+	}else if (isFlush(r))
+	{
+		cout << " You have a Flush ";
+	}
+	else if (isStraight(r))
+	{
+		cout << " You have a Straight";
+	}else if (isFullhouse(r))
+	{
+		cout << " You have a Fullhouse !!! What a beast !";
+	}
 	if (isFourOfAKind(r))
+	{
 		cout << " You Have a Four of a Kind !!! Amazing !!!";
+	}else
 	if (isThreeOfAKind(r))
+	{
 		cout << " You Have a Three Of A Kind ";
+	}else
 	if (isTwoPairs(r))
+	{
 		cout << " You Have Two Pairs";
+	}else
 	if (isPair(r))
 		cout << " You Have a Pair";
-	if (getHighestCard(r))
-		cout << " You Have a Highest Card";
+
 	return r;
 }
 
-// 2. Poker for 2 ( or N ) Players:
+//                                                 2. Poker for 2 ( or N ) Players:
+// Ham de chia bai den N nguoi choi ( Cau 2A ):
 int** dealingForHand(int deck[SUITS][FACES], int order, int n)
 {
 	int** player = new int*[5];
@@ -310,233 +336,351 @@ int** dealingForHand(int deck[SUITS][FACES], int order, int n)
 	return player;
 }
 
+// Cau 2B:
 int getStatusOfHand(int** hand) {
 	int score;
-	if (isStraightFlush(hand)) score = 8;
-	if (isFourOfAKind(hand)) score = 7;
-	if (isFullhouse(hand)) score = 6;
-	if (isFlush(hand)) score = 5;
-	if (isStraight(hand)) score = 4;
-	if (isThreeOfAKind(hand)) score = 3;
-	if (isTwoPairs(hand)) score = 2;
-	if (isPair(hand)) score = 1;
+	if (isStraightFlush(hand))
+	{
+		score = 8;
+	}
+	else if (isFourOfAKind(hand))
+	{
+		score = 7;
+	}
+	else if (isFullhouse(hand))
+	{
+		score = 6;
+	}
+	else if (isFlush(hand))
+	{
+		score = 5;
+	}
+	else if (isStraight(hand))
+	{
+		score = 4;
+	}
+	else if (isThreeOfAKind(hand))
+	{
+		score = 3;
+	}
+	else if (isTwoPairs(hand))
+	{
+		score = 2;
+	}
+	else if (isPair(hand))
+	{
+		score = 1;
+	}
 	else score = 0;
 	return score;
 }
 
+// Cau 2A:
 int*** dealingForHands(int deck[][13], int &n){
-	cout << " \n\n----- N Players Mode: ----- ";
+
+	cout << " \n\n -------------------------------------------------- N Players Mode:  -------------------------------------------------- ";
 	do {
 		cout << "\n  Input the number of player(s): ";
 		cin >> n;
-	} while (n <= 2 || n > 10);
+	} while (n <= 1 || n > 10);
 	int*** player = new int**[n];
 	shuffleCards(deck);
 	for (int i = 0; i < n; i++) {
 		player[i] = dealingForHand(deck, i, n);
+		cout << " - Player: " << i + 1 << endl;
 		printHand(player[i], suits, faces);
-		cout << "Score: " << getStatusOfHand(player[i]) << endl << "---------" << endl;
+
+		cout << " - The Score is: " << getStatusOfHand(player[i]) << endl << "-------------------------" << endl;
 	}
 	return player;
 }
 
-
-int* rankingHands(int*** hands, int n) {
-	int* a = new int;
-	int* b = new int;
-	int max = 999999;
-	for (int i = 0; i < n; i++) {
-		int max2 = 0;
-		for (int j = i + 1; j < n; j++) {
-			if (getStatusOfHand(hands[i]) < getStatusOfHand(hands[j]) && max2 < max) {
-				max2 = j;
-			}
-			else max2 = i;
-		}
-		a[max2] = i;
-		max2 = max;
-	}
-	return a;
-}
-
-/*
-void Menu()
+// Xep hang bai tren tay N nguoi choi ( 2C )
+int* rankingHands(int*** hands, int n)
 {
-	int n;
-	int deck[SUITS][FACES];
-	do {
-		cout << "---------- WELCOME TO POKER WORLD ---------- " << endl;
-		cout << "--------- By Huu Bang and Khanh Duy -------- " << endl;
-		cout << "  1/ Test Cards " << endl;
-		cout << "  2/ Single Player  " << endl;
-		cout << "  3/ Multiplayer  " << endl;
-		cout << "  4/ Playing with Dealer " << endl;
-		cout << "      Please choose a mode to play " << endl;
-		cin >> n;
-		switch (n)
+	int score[10];
+	int card[10];
+	int* result = new int[n];
+	int rank = 1;
+	for (int i = 0; i < n; i++){
+		score[i] = getStatusOfHand(hands[i]);
+		card[i] = getHighestCard(hands[i]);
+	}
+
+
+	int count = 0;
+	while (count != n)
+	{
+		int max = -999;
+		for (int i = 0; i < n; i++)
+		if (score[i] > max)
+			max = score[i];
+
+		if (max != 0)
 		{
-		case 0: break;
-		case 1:  
-			do
+			for (int i = 0; i < n; i++)
+			if (score[i] == max)
 			{
-				system("cls");
-				cout << "---------- WELCOME TO POKER WORLD ---------- " << endl;
-				cout << "--------- By Huu Bang and Khanh Duy -------- " << endl;
-				printCardsShuffling(deck, suits, faces) << endl;	break;
-				cout << " Wanna Try again? (y/n)" << endl;
-				cin  >> y;
-			} while ( y == 'y');
-			break;
-
-		case 2:
-		do
-		{
-			system("cls");
-			cout << "---------- WELCOME TO POKER WORLD ---------- " << endl;
-			cout << "--------- By Huu Bang and Khanh Duy -------- " << endl;
-			cout << "\t\t\t\t\t (1) Play Solo" << endl;
-			cout << "\t\t\t\t\t (2) Play against Dealer" << endl;
-			int 
-
-		default: {
-				 cout << " Your Input number is invalid , Try again please !!!" << endl;	break;
-				 }
-		}
-	} while (n); // n != 0;
-}
-
-
-int* evaluateHands(int po[], int n, int *&a)
-{
-	for (int i = 0; i < n; i++)
-		a[i] += po[i];
-	return a;
-}
-
-int checkbai(int Player[8], int n)
-{
-	int max = 0, a[5];
-	for (int i1 = 0; i1<n - 5 + 1; i1++)
-	for (int i2 = i1 + 1; i2<n - 5 + 2; i2++)
-	for (int i3 = i2 + 1; i3<n - 5 + 3; i3++)
-	for (int i4 = i3 + 1; i4<n - 5 + 4; i4++)
-	for (int i5 = i4 + 1; i5 < n - 5 + 5; i5++)
-	{
-		a[0] = Player[i1]; a[1] = Player[i2]; a[2] = Player[i3]; a[3] = Player[i4]; a[4] = Player[i5];
-		if (max < getStatusOfHand(a)) max = getStatusOfHand(a);
-	}
-	return max;
-}
-
-
-
-void dealer(int deck[SUITS][FACES], int Dealer[8], int Player[5][8], int n, int level)
-{
-	int nP = 5, nD = 5;
-	if (level == 1) nP = 8;
-	else if (level == 3) nD = 8;
-	for (int i = 0; i < n - 1; i++)
-	{
-		for (int j = 0; j < nP; j++)
-			Player[i][j] = a[i + j * n].P;
-		po[i] = checkbai(Player[i], nP);
-	}
-
-	for (int i = 0; i < nD; i++)
-		Dealer[i] = a[n - 1 + i * n].P;
-	po[n - 1] = checkbai(Dealer, nD);
-
-	int c[10];
-	for (int i = 0; i < n; i++)
-		c[i] = i + 1;
-
-	for (int i = 0; i < n; i++)
-	{
-		if (i != n - 1)
-		{
-			cout << "Player " << i + 1 << endl;
-			for (int j = 0; j < nP; j++)
-				cout << a[i + j * n].s << " ";
-			cout << endl;
-			cout << "point : " << po[c[i] - 1] << endl << endl;
+				result[i] = rank;
+				score[i] = -99;
+				count++;
+			}
+			rank++;
 		}
 		else
 		{
-			cout << "Dealer " << endl;
-			for (int j = 0; j < nD; j++)
-				cout << a[i + j * n].s << " ";
-			cout << endl;
-			cout << "point : " << po[i] << endl << endl;
+			int maxCard = -999;
+			for (int i = 0; i < n; i++)
+			if ((getStatusOfHand(hands[i]) == 0) && (card[i] > maxCard))
+				maxCard = card[i];
+
+			for (int i = 0; i < n; i++)
+			if ((getStatusOfHand(hands[i]) == 0) && (card[i] == maxCard))
+			{
+				result[i] = rank;
+				card[i] = -99;
+				score[i] = -99;
+				count++;
+			}
+			rank++;
 		}
 	}
 
-	for (int i = 0; i < n - 1; i++)
-	for (int j = i + 1; j < n; j++)
-	{
-		if (po[i] < po[j])
-		{
-			swap(po[i], po[j]);
-			swap(c[i], c[j]);
+	return result;
+}
+
+/*
+int** handOfHands(int*** hands, int n)
+{
+	int** hand = new int*[5];
+	for (int i = 0; i < 5; i++)
+		hand[i] = new int[2];
+	for (int j = 0; j < 5; j++) {
+		hand[j][0] = hands[n][j][0];
+		hand[j][1] = hands[n][j][1];
+	}
+	return hand;
+}
+
+void printHand2(int*** hand, const char* suits[], const char* faces[], int n)
+{
+	int** hand1, a, b;
+	for (int i = 0; i < n; i++) {
+		cout << "\nCards of Player[" << i + 1 << "]:\n";
+		for (int j = 0; j < 5; j++) {
+			cout << faces[hand[i][j][1]] << suits[hand[i][j][0]] << "\t";
 		}
+		hand1 = handOfHands(hand, i);
+		check(hand1, suits, faces);
+		cout << endl;
+	}
+}
+
+void evaluateHands(int deck[SUITS][FACES], const char* suits[], const char* faces[], int n, int m)
+{
+	int* a = new int[n];
+	int* b = new int[n];
+	int** hand1, *hand2;
+	int max = 11, index;
+	for (int i = 0; i < n; i++) {
+		b[i] = 0;
 	}
 
-	if (po[n - 1] == po[0]) cout << "===== Tie! =====" << endl;
-	else
-	{
-		cout << "===== The Winner =====" << endl;
+	shuffleCards(deck);
+	for (int i = 0; i < m; i++) {
+		hand2 = dealingForHands(deck, n);
+		cout << "\nPhase " << i + 1 << ":";
+		printHand2(hand2, suits, faces, n);
+		for (int j = 0; j < n; j++) {
+			hand1 = handOfHands(hand2, j);
+			b[j] += getStatusOfHand(hand1);
 
-		for (int i = 0; i < n; i++)
-		if (po[i] == po[0])
-		if (c[i] == n) cout << "- Dealer" << endl;
-		else cout << "- Player " << c[i] << endl;
+		}
+		shuffleCards(deck);
 
+	}
+	for (int i = 0; i < n; i++) {
+		a[i] = b[i];
+	}
+	for (int i = 0; i < n - 1; i++) {
+		for (int j = i + 1; j < n; j++) {
+			if (b[i] < b[j]) {
+				swap(b[j], b[i]);
+			}
+		}
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (a[i] == b[j]) {
+				a[i] = j + 1;
+				break;
+			}
+		}
+	}
+	cout << "\n\n Rank:";
+	for (int i = 0; i < n; i++) {
+		cout << "\nPlayer" << i + 1 << ": ";
+		cout << a[i];
+	}
+	cout << endl;
+	for (int i = 0; i < n; i++) {
+		if (a[i] < max) {
+			max = a[i];
+			index = i;	
+		}
+	}
+	cout << "\n Congratulate Player" << index + 1 << "!";
+	for (int i = 0; i < n; i++) {
+		if (a[i] == max && i != index) {
+			cout << " & Player" << i + 1;
+		}
 	}
 	cout << endl;
 }
 */
+
 int main()
 {
-	int deck[SUITS][FACES],a[1000];
 	int** hand = NULL;
 	int*** hands = NULL;
 	int** r = NULL;
-	//Menu();
-	shuffleCards(deck);
-	printCardsShuffling(deck, suits, faces);
-	r = createHandTest(deck, a); 
-	hand = dealingForHand(deck);
-	cout << " \n ----- 1 Player Mode: ----- ";
-	cout << " \n  5 la bai tren tay nguoi choi la: " << endl;
-	printHand(hand, suits, faces);
-		if (isFlush(hand))
-			cout << " You have a Flush ";
-		if (isStraight(hand))
-			cout << " You have a Straight";
-		if (isStraightFlush(hand))
-			cout << " You Have a Straight of Flush !!! Impressive !!!";
-		if (isFourOfAKind(hand))
-			cout << " You Have a Four of a Kind !!! Amazing !!!";
-		if (isFullhouse(hand))
-			cout << " You have a Fullhouse !!! What a beast !";
-		if (isThreeOfAKind(hand))
-			cout << " You Have a Three Of A Kind ";
-		if (isTwoPairs(hand))
-			cout << " You Have Two Pairs";
-		if (isPair(hand))
-			cout << " You Have a Pair";
-		if (getHighestCard(hand))
-			cout << " You Have a Highest Card";
-		if (getStatusOfHand(hand) == 0)
+	int n, selection,a[1000];
+	int deck[SUITS][FACES];
+	do {
+		cout << "\n                                      ---------- WELCOME TO POKER WORLD ---------- " << endl;
+		cout << "\n                                      --------- By Huu Bang and Khanh Duy -------- " << endl;
+		cout << "\n                                                 1/ Test Cards " << endl;
+		cout << "                                                 2/ Single Player  " << endl;
+		cout << "                                                 3/ Multiplayer  " << endl;
+		cout << "                                                 4/ Playing with Dealer " << endl;
+		cout << "\n                                              Please choose a mode to play: " ;
+		cin >> selection;
+	} while (selection <= 1 && selection >= 5);
+	while ((selection >= 1 && selection <= 1000))
+	{
+		cout << endl;
+		if (selection == 1)
 		{
-			cout << "\n Player's Highest Card is: " << getHighestCard(hand) << endl;
+			system("cls");
+			shuffleCards(deck);
+			printCardsShuffling(deck, suits, faces);
+			r = createHandTest(deck, a);
+
 		}
-	int n, po[1000];
-	//int *a = new int;
-	dealingForHands(deck, n);
-	hands = dealingForHands(deck, n);
-	rankingHands(hands, n);
+		cout << endl;
+		if (selection == 2)
+		{
+			system("cls");
+			cout << "\n                                   SINGLE PLAYER MODE:" <<endl;
+			shuffleCards(deck);
+			printCardsShuffling(deck, suits, faces);
+			hand = dealingForHand(deck);
+			cout << " \n\n -------------------------------------------------- 1 Player Mode: -------------------------------------------------- ";
+			cout << " \n  5 la bai tren tay nguoi choi la: " << endl;
+			printHand(hand, suits, faces);
+			if (isStraightFlush(hand))
+			{
+				cout << " You Have a Straight of Flush !!! Impressive !!!";
+			}
+			else if (isFlush(hand))
+			{
+				cout << " You have a Flush ";
+			}
+			else if (isStraight(hand))
+			{
+				cout << " You have a Straight";
+			}
+			else if (isFourOfAKind(hand))
+			{
+				cout << " You Have a Four of a Kind !!! Amazing !!!";
+			}
+			else if (isFullhouse(hand))
+			{
+				cout << " You have a Fullhouse !!! What a beast !";
+			}
+			else if (isThreeOfAKind(hand))
+			{
+				cout << " You Have a Three Of A Kind ";
+			}
+			else if (isTwoPairs(hand))
+			{
+				cout << " You Have Two Pairs";
+			}
+			else if (isPair(hand))
+			{
+				cout << " You Have a Pair";
+			}
+			char highestcard = getHighestCard(hand);
+			if (getHighestCard(hand))
+			{
+				cout << "\n Player's Highest card is: " << highestcard << endl;
+			}
+
+		}
+
+		if (selection == 3)
+		{
+			system("cls");
+			hands = dealingForHands(deck, n);
+			int* rank = rankingHands(hands, n);
+			for (int i = 0; i < n; i++){
+				cout << "Player " << i + 1 << "'s rank is: " << *(rank + i) << endl;
+			}
+		}
+
+		if (selection == 4)
+		{
+			system("cls");
+			shuffleCards(deck);
+			printCardsShuffling(deck, suits, faces);
+			hand = dealingForHand(deck);
+			cout << " \n\n -------------------------------------------------- Dealer Mode: -------------------------------------------------- ";
+			cout << " \n  5 la bai luc dau tren tay Dealer la: " << endl;
+			printHand(hand, suits, faces);
+			if (isStraightFlush(hand))
+			{
+				cout << " The Dealer's first hand has a Straight of Flush !!! Impressive !!!";
+			}
+			else if (isFlush(hand))
+			{
+				cout << " The Dealer's first hand has a Flush ";
+			}
+			else if (isStraight(hand))
+			{
+				cout << " The Dealer's first hand has a Straight";
+			}
+			else if (isFourOfAKind(hand))
+			{
+				cout << " The Dealer's first hand has a Four of a Kind !!! Amazing !!!";
+			}
+			else if (isFullhouse(hand))
+			{
+				cout << " The Dealer's first hand has a Fullhouse !!! What a beast !";
+			}
+			else if (isThreeOfAKind(hand))
+			{
+				cout << " The Dealer's first hand has a Three Of A Kind ";
+			}
+			else if (isTwoPairs(hand))
+			{
+				cout << " The Dealer's first hand has Two Pairs";
+			}
+			else if (isPair(hand))
+			{
+				cout << " The Dealer's first hand has a Pair";
+			}
+			char highestcard = getHighestCard(hand);
+			if (getHighestCard(hand))
+			{
+				cout << "\n The Dealer's Highest card: " << highestcard << endl;
+			}
+		}
+		cout << "                                                  Try Another one : ";
+		cin >> selection;
+		cout << endl;
+	}
+
 	//evaluateHands(po, n,a);
 	delete[] hand;
-	//delete[] * &a;
 	_getch();
 }
