@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const char* suits[SUITS] = { "Hearts", "Diamonds", "Clubs", "Spades" };
+const char* suits[SUITS] = { "Heart", "Diamonds", "Clubs", "Spades" };
 const char* faces[FACES] = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
 
 // Lenh xao bai
@@ -316,14 +316,13 @@ int** createHandTest(int deck[SUITS][FACES], int a[]){
 	return r;
 }
 
-//                                                 2. Poker for 2 ( or N ) Players:
+// Hàm để xét trường hợp bài trên tay của 1 người chơi
 void CheckHand(int** hand)
 {
 	Sort(hand);
 	if (isStraightFlush(hand))
 	{
 		cout << " You Have a Straight of Flush !!! Impressive !!!";
-
 	}
 	else if (isFlush(hand))
 	{
@@ -360,7 +359,8 @@ void CheckHand(int** hand)
 	}
 }
 
-// Ham de chia bai den N nguoi choi ( Cau 2A ):
+//                                                 2. Poker for 2 ( or N ) Players:
+									// Ham de chia bai den N nguoi choi ( Cau 2A ):
 int** dealingForHand(int deck[SUITS][FACES], int order, int n)
 {
 	int** player = new int*[5];
@@ -425,21 +425,10 @@ int getStatusOfHand(int** hand) {
 }
 
 // Cau 2A:
-int*** dealingForHands(int deck[][13], int &n){
-
-	cout << " \n\n -------------------------------------------------- N Players Mode:  -------------------------------------------------- ";
-	do {
-		cout << "\n  Input the number of player(s): ";
-		cin >> n;
-	} while (n <= 1 || n > 10);
+int*** dealingForHands(int deck[][13], int& n) {
 	int*** player = new int**[n];
-	shuffleCards(deck);
 	for (int i = 0; i < n; i++) {
 		player[i] = dealingForHand(deck, i, n);
-		cout << " - Player: " << i + 1 << endl;
-		printHand(player[i], suits, faces);
-
-		cout << " - The Score is: " << getStatusOfHand(player[i]) << endl << "-------------------------" << endl;
 	}
 	return player;
 }
@@ -447,55 +436,41 @@ int*** dealingForHands(int deck[][13], int &n){
 // Xep hang bai tren tay N nguoi choi ( 2C )
 int* rankingHands(int*** hands, int n)
 {
-	int score[10];
-	int card[10];
-	int* result = new int[n];
+	int* score = new int[n];
+	int* res = new int[n];
 	int rank = 1;
 	for (int i = 0; i < n; i++){
 		score[i] = getStatusOfHand(hands[i]);
-		card[i] = getHighestCard(hands[i]);
 	}
-
 
 	int count = 0;
-	while (count != n)
-	{
-		int max = -999;
-		for (int i = 0; i < n; i++)
-		if (score[i] > max)
-			max = score[i];
+	while (count != n) {
+		int max = 0;
+		for (int i = 0; i < n; i++) {
+			if (score[i] > max)
+				max = score[i];
+		}
 
-		if (max != 0)
-		{
+		if (max != 0) {
 			for (int i = 0; i < n; i++)
-			if (score[i] == max)
-			{
-				result[i] = rank;
+			if (score[i] == max) {
+				res[i] = rank;
 				score[i] = -99;
 				count++;
 			}
 			rank++;
 		}
-		else
-		{
-			int maxCard = -999;
+		else {
 			for (int i = 0; i < n; i++)
-			if ((getStatusOfHand(hands[i]) == 0) && (card[i] > maxCard))
-				maxCard = card[i];
-
-			for (int i = 0; i < n; i++)
-			if ((getStatusOfHand(hands[i]) == 0) && (card[i] == maxCard))
-			{
-				result[i] = rank;
-				card[i] = -99;
+			if ((getStatusOfHand(hands[i]) == 0)) {
+				res[i] = rank;
 				score[i] = -99;
 				count++;
 			}
 			rank++;
 		}
 	}
-
-	return result;
+	return res;
 }
 
 // Tinh tong diem cua N nguoi choi sau S vong :
@@ -521,13 +496,78 @@ int* evaluateHands(int*** &hands, int n, int turn, int deck[4][13])
 	return sum;
 }
 
+// Ham xao bai va in bai gop chung
 void shuffleandprint(int deck[][13]) {
 	shuffleCards(deck);
 	printCardsShuffling(deck, suits, faces);
 }
 
-void np(int*** hands, int deck[][13], int& n) {
-	shuffleandprint(deck);	
+// Ham xet bai tren tay va Hang ( Rankings) cua che do N player ( Trong 1 Round đấu duy nhất )
+void np(int*** hands, int deck[][13], int &n) {
+	shuffleandprint(deck);
+	cout << " \n\n -------------------------------------------------- N Players Mode: -------------------------------------------------- ";
+	do {
+		cout << "\n  Input the number of player(s):";
+		cin >> n;
+		cout << "______________\n";
+	} while (n <= 2 || n > 10);
+	hands = dealingForHands(deck, n);
+	//np(hands, deck, n);
+	for (int i = 0; i < n; i++) {
+		printHand(hands[i], suits, faces);
+		if (isFlush(hands[i])) {
+			cout << " You have a Flush \n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else if (isStraight(hands[i])) {
+			cout << " You have a Straight\n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else if (isStraightFlush(hands[i])) {
+			cout << " You Have a Straight of Flush !!! Impressive !!!\n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else if (isFourOfAKind(hands[i])) {
+			cout << " You Have a Four of a Kind !!! Amazing !!!\n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else if (isFullhouse(hands[i])) {
+			cout << " You have a Fullhouse !!! What a beast !\n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else if (isThreeOfAKind(hands[i])) {
+			cout << " You Have a Three Of A Kind \n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else if (isTwoPairs(hands[i])) {
+			cout << " You Have Two Pairs\n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else if (isPair(hands[i])) {
+			cout << " You Have a Pair\n";
+			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl << endl << "_______" << endl;
+		}
+		else {
+			char highestcards = getHighestCard(hands[i]);
+			cout << "\n Highest card is the " << highestcards << " card!!";
+			cout << "\n Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl;
+		}
+	}
+	int* rank = rankingHands(hands, n);
+	for (int i = 0; i < n; i++) {
+		cout << " The rank of player " << i + 1 << " is:" << *(rank + i) << endl;
+	}
+}
+
+// Ham xet bai tren tay va Hang ( Rankings) cua che do N player ( Trong N Round đấu)
+void np2(int*** hands, int deck[][13], int &n) {
+	shuffleandprint(deck);
+	cout << " \n\n -------------------------------------------------- N Players Mode: -------------------------------------------------- ";
+	do {
+		cout << "\n  Input the number of player(s):";
+		cin >> n;
+		cout << "______________\n";
+	} while (n <= 2 || n > 10);
 	hands = dealingForHands(deck, n);
 	//np(hands, deck, n);
 	for (int i = 0; i < n; i++) {
@@ -581,8 +621,25 @@ void np(int*** hands, int deck[][13], int& n) {
 	cout << "_________\n";
 	int* sum = evaluateHands(hands, n, turn, deck);
 	for (int i = 0; i < n; i++) {
-		cout << *(sum + i) << " is score of player  " << i + 1 << endl << "-------------" << endl;
+		cout << *(sum + i) << " is the final score of Player  " << i + 1 << endl << "-------------" << endl;
 	}
+}
+
+// Ham chinh mau cua van ban
+void textcolor(int x)
+{
+	HANDLE mau;
+	mau = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(mau, x);
+}
+
+// Hàm dịch chuyển con trỏ đến vị trí x,y
+void gotoxy(int x, int y)
+{
+	HANDLE hConsoleOutput;
+	COORD Cursor_an_Pos = { x - 1, y - 1 };
+	hConsoleOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleCursorPosition(hConsoleOutput, Cursor_an_Pos);
 }
 
 int main()
@@ -592,35 +649,73 @@ int main()
 	int** r = NULL;
 	int n, selection, a[1000];
 	int deck[SUITS][FACES];
-	do {
-		cout << "\n                                      ---------- WELCOME TO POKER WORLD ----------- " << endl;
+	system("cls");
+	
+		for (int i = 0; i < 3; i++)
+		{
+			gotoxy(1,10);
+			textcolor(12);
+			cout << "\n                 =============           /`            ____    ___    ___________    _____________  ";
+			cout << "\n                ||*      ///||         // ``           |* |   / */    |  *      *|   ||*      ///|| ";
+			cout << "\n                || *        ||        //   ``          |  |  /  /     |   _______|   || *        || ";
+			cout << "\n                ||        * ||       //     ``         |  | /  /      |   |          || *        || ";
+			cout << "\n                ||   *      ||      //       ``        | *|/  /       | * |______    || *        || ";
+			cout << "\n                ||///=======|}     //         ``       |      (       |      *   |   ||////////__|| ";
+			cout << "\n                ||                 ``         //       |      `       |*  _______|   ||  |  `  `    ";
+			cout << "\n                ||                  ``       //        |  | `  `      |   |          ||  |   `  `   ";
+			cout << "\n                ||                   ``     //         |* |  `  `     | * |_______   ||  |    `  `  ";
+			cout << "\n                ||                    ``   //          |  |   `  `    |           |  ||  |     `  ` ";
+			cout << "\n                ||                     ``.//           |__|    `___)  |___________|  ||__|      `___)   ";
+		Sleep(800);
+		system("cls");
+		Sleep(800);
+		}
+	while (1)
+	{
+		system("cls");
+		textcolor(15);
+		cout << "\n\n\n\n\n\n\n                                      ---------- WELCOME TO POKER WORLD ----------- " << endl;
 		cout << "\n                                      --------- By Huu Bang and Khanh Duy --------- " << endl;
+		textcolor(12);
 		cout << "\n                                        * * * * * * * * * * * * * * * * * * * * *";
 		cout << "\n                                        *                                       *";
+		textcolor(14);
 		cout << "\n                                        *           1/ Test Cards               *" << endl;
+		textcolor(11);
 		cout << "                                        *           2/ Single Player            * " << endl;
+		textcolor(10);
 		cout << "                                        *           3/ Multiplayer              *" << endl;
+		textcolor(13);
 		cout << "                                        *           4/ Playing with Dealer      * ";
+		textcolor(15);
+		textcolor(12);
 		cout << "\n                                        *                                       *";
 		cout << "\n                                        * * * * * * * * * * * * * * * * * * * * *";
+		textcolor(15);
 		cout << "\n\n                                              PLEASE CHOOSE A MODE TO PLAY: ";
 		cin >> selection;
-	} while (selection <= 1 && selection >= 5);
-	while ((selection >= 1 && selection <= 1000))
-	{
+	
+
 		cout << endl;
-		if (selection == 1)
+		if (selection != 1 && selection != 2 && selection != 3 && selection != 4)
+		{
+			cout << "\n                                           Invalid Option , Please check it again! " << endl;
+			system("pause");
+		}
+		else if (selection == 1)
 		{
 			system("cls");
+			textcolor(14);
 			shuffleCards(deck);
 			printCardsShuffling(deck, suits, faces);
 			r = createHandTest(deck, a);
-
+			cout << endl;
+			system("pause");
 		}
-		cout << endl;
-		if (selection == 2)
+		else if (selection == 2)
 		{
 			system("cls");
+			textcolor(11);
 			cout << "\n                                   SINGLE PLAYER MODE:" << endl;
 			shuffleCards(deck);
 			printCardsShuffling(deck, suits, faces);
@@ -628,32 +723,97 @@ int main()
 			cout << " \n\n -------------------------------------------------- 1 Player Mode: -------------------------------------------------- ";
 			cout << " \n  5 la bai tren tay nguoi choi la: " << endl;
 			printHand(hand, suits, faces);
-			CheckHand(hand);
+			CheckHand(hand);;
+			cout << endl;
+			system("pause");
 		}
-
-		if (selection == 3)
+		else if (selection == 3)
 		{
 			system("cls");
-			np(hands, deck, n);
+			textcolor(10);
+			int selection_2;
+			cout << "\n\n ---------------------------------------- How many Rounds do you want to Play ? --------------------------------------";
+			cout << "\n\n					        1/ Just a Single Round";
+			cout << "\n\n					        2/ Play Multiple Rounds";
+			cout << "\n\n                                                   Choose an option: ";
+			cin >> selection_2;
+			switch (selection_2)
+			{
+			case 1:
+			{
+					  system("cls");
+					  np(hands, deck, n);
+					  system("pause");
+					  break;
+			}
+			case 2:
+			{
+					  system("cls");
+					  np2(hands, deck, n);
+					  system("pause");
+					  break;
+			}
+			}
+		
 		}
-
-		if (selection == 4)
+		else if (selection == 4)
 		{
 			system("cls");
+			textcolor(13);
 			shuffleCards(deck);
 			printCardsShuffling(deck, suits, faces);
 			hand = dealingForHand(deck);
 			cout << " \n\n -------------------------------------------------- Dealer Mode: -------------------------------------------------- ";
 			cout << " \n  5 la bai luc dau tren tay Dealer la: " << endl;
 			printHand(hand, suits, faces);
-			CheckHand(hand);
-		}
+			char highestcard = getHighestCard(hand);
+			if (isStraightFlush(hand))
+			{
+				cout << " The Dealer has a Straight of Flush !!! Impressive !!!" << endl;
 
-		cout << "                                                    Try Another one : ";
-		cin >> selection;
+			}
+			else if (isFlush(hand))
+			{
+				cout << " The Dealer firstly has a Flush " << endl;
+			}
+			else if (isStraight(hand))
+			{
+				cout << " The Dealer firstly has a Straight" << endl;
+			}
+			else if (isFourOfAKind(hand))
+			{
+				cout << " The Dealer firstly has a Four of a Kind !!! Amazing !!!" << endl;
+			}
+			else if (isFullhouse(hand))
+			{
+				cout << " The Dealer firstly has a Fullhouse !!! What a beast !" << endl;
+			}
+			else if (isThreeOfAKind(hand))
+			{
+				cout << " The Dealer firstly has a Three Of A Kind " << endl;
+			}
+			else if (isTwoPairs(hand))
+			{
+				cout << " The Dealer firstly has Two Pairs" << endl;
+			}
+			else if (isPair(hand))
+			{
+				cout << " The Dealer firstly has a Pair" << endl;
+			}
+			else if (getHighestCard(hand))
+			{
+				cout << "\n The Dealer's Highest card is: " << highestcard << endl;
+			}
+			system("pause");
+		}
+		else
+		{
+			break;
+		}
+		
 		cout << endl;
 	}
-
 	delete[] hand;
+	system("pause");
 	_getch();
 }
