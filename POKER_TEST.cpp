@@ -9,7 +9,7 @@
 
 using namespace std;
 
-const char* suits[SUITS] = { "Heart", "Diamonds", "Clubs", "Spades" };
+const char* suits[SUITS] = { "Hearts", "Diamonds", "Clubs", "Spades" };
 const char* faces[FACES] = { "2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A" };
 
 // Lenh xao bai
@@ -316,7 +316,7 @@ int** createHandTest(int deck[SUITS][FACES], int a[]){
 	return r;
 }
 
-// Hàm để xét trường hợp bài trên tay của 1 người chơi
+// Hàm d? xét tru?ng h?p bài trên tay c?a 1 ngu?i choi
 void CheckHand(int** hand)
 {
 	Sort(hand);
@@ -360,7 +360,7 @@ void CheckHand(int** hand)
 }
 
 //                                                 2. Poker for 2 ( or N ) Players:
-									// Ham de chia bai den N nguoi choi ( Cau 2A ):
+
 int** dealingForHand(int deck[SUITS][FACES], int order, int n)
 {
 	int** player = new int*[5];
@@ -424,7 +424,7 @@ int getStatusOfHand(int** hand) {
 	return score;
 }
 
-// Cau 2A:
+// Ham de chia bai den N nguoi choi  (Cau 2A):
 int*** dealingForHands(int deck[][13], int& n) {
 	int*** player = new int**[n];
 	for (int i = 0; i < n; i++) {
@@ -433,7 +433,7 @@ int*** dealingForHands(int deck[][13], int& n) {
 	return player;
 }
 
-// Xep hang bai tren tay N nguoi choi ( 2C )
+// Xep hang bai tren tay N nguoi choi ( câu 2C )
 int* rankingHands(int*** hands, int n)
 {
 	int* score = new int[n];
@@ -492,7 +492,7 @@ int* evaluateHands(int*** &hands, int n, int turn, int deck[4][13])
 			cout << " ________  " << endl;
 			sum[j] += getStatusOfHand(hands[j]);
 		}
-	}
+	}	
 	return sum;
 }
 
@@ -502,7 +502,7 @@ void shuffleandprint(int deck[][13]) {
 	printCardsShuffling(deck, suits, faces);
 }
 
-// Ham xet bai tren tay va Hang ( Rankings) cua che do N player ( Trong 1 Round đấu duy nhất )
+// Ham xet bai tren tay va Hang ( Rankings) cua che do N player ( Trong 1 Round dau duy nhat )
 void np(int*** hands, int deck[][13], int &n) {
 	shuffleandprint(deck);
 	cout << " \n\n -------------------------------------------------- N Players Mode: -------------------------------------------------- ";
@@ -559,17 +559,17 @@ void np(int*** hands, int deck[][13], int &n) {
 	}
 }
 
-// Ham xet bai tren tay va Hang ( Rankings) cua che do N player ( Trong N Round đấu)
-void np2(int*** hands, int deck[][13], int &n) {
-	shuffleandprint(deck);
+// Ham xet bai tren tay va Hang ( Rankings) cua che do N player ( Trong N Round d?u)
+void np2(int*** hands, int deck[][13], int& n) {
+	shuffleCards(deck);
+	//shuffleandprint(deck);
 	cout << " \n\n -------------------------------------------------- N Players Mode: -------------------------------------------------- ";
 	do {
 		cout << "\n  Input the number of player(s):";
 		cin >> n;
 		cout << "______________\n";
-	} while (n <= 2 || n > 10);
+	} while (n > 10);
 	hands = dealingForHands(deck, n);
-	//np(hands, deck, n);
 	for (int i = 0; i < n; i++) {
 		printHand(hands[i], suits, faces);
 		if (isFlush(hands[i])) {
@@ -606,11 +606,12 @@ void np2(int*** hands, int deck[][13], int &n) {
 		}
 		else {
 			char highestcards = getHighestCard(hands[i]);
-			cout << "\n Highest card is the " << highestcards << " card!!";
+			cout << "\n Highest card is the " << highestcards << " card!!" << endl;
 			cout << "Score: " << getStatusOfHand(hands[i]) << endl << "---------" << endl;
 		}
 	}
 	int* rank = rankingHands(hands, n);
+	int ranked;
 	for (int i = 0; i < n; i++) {
 		cout << "The rank of player " << i + 1 << " is:" << *(rank + i) << endl;
 	}
@@ -621,10 +622,245 @@ void np2(int*** hands, int deck[][13], int &n) {
 	cout << "_________\n";
 	int* sum = evaluateHands(hands, n, turn, deck);
 	for (int i = 0; i < n; i++) {
-		cout << *(sum + i) << " is the final score of Player  " << i + 1 << endl << "-------------" << endl;
+		cout << *(sum + i) << " is score of player  " << i + 1 << endl << "-------------" << endl;
+	}
+	int* ranks = new int[n];
+	for (int i = 0; i < n; i++) {
+		ranks[i] = 1;
+	}
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < n; j++) {
+			if (sum[i] < sum[j]) {
+				ranks[i]++;
+			}
+		}
+		cout << "The rank of player " << i + 1 << " is: " << *(ranks + i) << endl;
+		if(*(ranks + i) == 1) ranked = i+1;
+	}
+	cout << "The winner is player " << ranked << " !!";
+}
+
+void Sortdealer(int**& hand) {
+	for (int i = 0; i < 8; i++) {
+		for (int j = i + 1; j < 8; j++) {
+			if (hand[i][1] > hand[j][1]) {
+				swap(hand[i][1], hand[j][1]);
+				swap(hand[i][0], hand[j][0]);
+			}
+		}
 	}
 }
 
+int checkbai(int** dealer, int n)
+{
+	Sortdealer(dealer);
+	int max = 0;
+	int** a = new int*[5];
+	for (int i = 0; i < 5; i++) {
+		a[i] = new int[2];
+	}
+	for (int i1 = 0; i1 < n - 5 + 1; i1++)
+	for (int i2 = i1 + 1; i2 < n - 5 + 2; i2++)
+	for (int i3 = i2 + 1; i3 < n - 5 + 3; i3++)
+	for (int i4 = i3 + 1; i4 < n - 5 + 4; i4++)
+	for (int i5 = i4 + 1; i5 < n - 5 + 5; i5++)
+	{
+		a[0][0] = dealer[i1][0]; a[1][0] = dealer[i2][0]; a[2][0] = dealer[i3][0]; a[3][0] = dealer[i4][0]; a[4][0] = dealer[i5][0];
+		a[0][1] = dealer[i1][1]; a[1][1] = dealer[i2][1]; a[2][1] = dealer[i3][1]; a[3][1] = dealer[i4][1]; a[4][1] = dealer[i5][1];
+		if (max < getStatusOfHand(a)) max = getStatusOfHand(a);
+	}
+	return max;
+}
+
+void S3(int*** hands, int& m, int &turn, int deck[][13], const char* suits[], const char* faces[]) {
+	do{
+		cout << "\n Input numbers of players: ";
+		cin >> m;
+	}while (m < 1 || m > 9) ;
+	shuffleCards(deck);
+	int*** dhands = NULL;
+	dhands = dealingForHands(deck, m);
+	for (int i = 0; i < m; i++) {
+		dhands[i] = dealingForHand(deck, i, m);
+	}
+	int** dealer = new int*[8];
+	for (int i = 0; i < 8; i++) {
+		dealer[i] = new int[2];
+	}
+	for (int i = 0; i < 5; i++) {
+		dealer[i][0] = dhands[m - 1][i][0];
+		dealer[i][1] = dhands[m - 1][i][1];
+	}
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 4; j++) {
+			for (int t = 0; t < 13; t++) {
+				if (deck[j][t] == 5 * m + i)
+				{
+					dealer[i + 5][0] = j;
+					dealer[i + 5][1] = t;
+				}
+			}
+		}
+	}
+	int* sumd = new int[m - 1];
+	for (int i = 0; i < m - 1; i++) {
+		sumd[i] = 0;
+	}
+	int cardsdealer = 8;
+	int scoredeal;
+	int turnd;
+	cout << "\n Input turns to play: ";
+	cin >> turnd;
+	//int scoredealer = checkbai(dealer, cardsdealer);
+	for (int k = 0; k < turnd; k++) {
+		shuffleCards(deck);
+		Sleep(1000);
+		dhands = dealingForHands(deck, m);
+		int scoredealer = checkbai(dealer, cardsdealer);
+		for (int t = 0; t<m - 1; t++){
+			printHand(dhands[t], suits, faces);
+			cout << "Score: " << getStatusOfHand(dhands[t]);
+			cout << endl << "--" << endl;
+			sumd[t] += getStatusOfHand(dhands[t]);
+		}
+		for (int i = 0; i < 5; i++) {
+			dealer[i][0] = dhands[m - 1][i][0];
+			dealer[i][1] = dhands[m - 1][i][1];
+		}
+		for (int i = 0; i < 3; i++) {
+			for (int j = 0; j < 4; j++) {
+				for (int t = 0; t < 13; t++) {
+					if (deck[j][t] == 5 * m + i)
+					{
+						dealer[i + 5][0] = j;
+						dealer[i + 5][1] = t;
+					}
+				}
+			}
+		}
+		for (int i = 0; i < 8; i++)
+		{
+			cout << "(" << suits[dealer[i][0]] << " , " << faces[dealer[i][1]] << ")" << endl;
+		}
+		cout << "Score: " << scoredealer << endl;
+		cout << "--" << endl;
+		scoredeal += scoredealer; // tính tong diemm cua dealer sau turn vòng
+	}
+	int rankd, scored = 0;
+	for (int i = 0; i<m - 1; i++){
+		for (int j = i + 1; j<m - 1; j++){
+			if (*(sumd + i) > *(sumd + j)){
+				rankd = i + 1;
+				scored = *(sumd + i);
+			}
+			else rankd = j + 1; scored = *(sumd + j);
+		}
+	}
+	if (scored >= scoredeal) cout << " Player " << rankd << " win!!" << endl;
+	else cout << " Dealer win!!" << endl;
+}
+
+void S4andS5easy(int*** hands, int k, int turn, int deck[][13], const char* suits[], const char* faces[]) {
+	shuffleCards(deck);
+	int*** shands = NULL;
+	int cardspler = 8;
+	shands = dealingForHands(deck, k);
+	for (int i = 0; i < k; i++) {
+		shands[i] = dealingForHand(deck, i, k);
+	}
+	int** pler = new int* [8];
+	for (int i = 0; i < 8; i++) {
+		pler[i] = new int[2];
+	}
+	for (int i = 0; i < 5; i++) {
+		pler[i][0] = shands[k - 1][i][0];
+		pler[i][1] = shands[k - 1][i][1];
+	}
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 4; j++) {
+			for (int t = 0; t < 13; t++) {
+				if (deck[j][t] == 5 * k + i)
+				{
+					pler[i + 5][0] = j;
+					pler[i + 5][1] = t;
+				}
+			}
+		}
+	}
+	int scorepler = checkbai(pler, cardspler);
+	for (int i = 0; i < k-1; i++) {
+		printHand(shands[i], suits, faces);
+		cout << " Score: " << getStatusOfHand(shands[i]);
+		cout << endl << "--" << endl;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		cout << "(" << suits[pler[i][0]] << " , " << faces[pler[i][1]] << ")" << endl;
+	}
+	cout << "Score: " << scorepler << endl;
+	cout << "--" << endl;
+	if(getStatusOfHand(shands[0]) > scorepler) cout << " Dealer win!!" << endl;
+	else cout << " Player win!!" << endl;
+}
+
+void S4andS5medium(int*** hands, int k, int turn, int deck[][13], const char* suits[], const char* faces[]){
+	shuffleCards(deck);
+	int*** shands = NULL;
+	int cardspler = 8;
+	shands = dealingForHands(deck, k);
+	for (int i = 0; i < k; i++) {
+		shands[i] = dealingForHand(deck, i, k);
+	}
+	cout << "Player's cards: " << endl;
+	printHand(shands[0],suits,faces);
+	cout << "\n\n Dealer's cards: " << endl;
+	printHand(shands[1],suits,faces);
+	if(getStatusOfHand(shands[0]) < getStatusOfHand(shands[1])) cout << "Player win!!" << endl;
+	else cout << "Dealer win!!" << endl;
+}
+
+void S4andS5hard(int*** hands, int k, int turn, int deck[][13], const char* suits[], const char* faces[]){
+		shuffleCards(deck);
+	int*** shands = NULL;
+	int cardspler = 8;
+	shands = dealingForHands(deck, k);
+	for (int i = 0; i < k; i++) {
+		shands[i] = dealingForHand(deck, i, k);
+	}
+	int** pler = new int* [8];
+	for (int i = 0; i < 8; i++) {
+		pler[i] = new int[2];
+	}
+	for (int i = 0; i < 5; i++) {
+		pler[i][0] = shands[k - 1][i][0];
+		pler[i][1] = shands[k - 1][i][1];
+	}
+	for (int i = 0; i < 3; i++) {
+		for (int j = 0; j < 4; j++) {
+			for (int t = 0; t < 13; t++) {
+				if (deck[j][t] == 5 * k + i)
+				{
+					pler[i + 5][0] = j;
+					pler[i + 5][1] = t;
+				}
+			}
+		}
+	}
+	int scorepler = checkbai(pler, cardspler);
+	for (int i = 0; i < k-1; i++) {
+		printHand(shands[i], suits, faces);
+		cout << "Score: " << getStatusOfHand(shands[i]);
+		cout << endl << "--" << endl;
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		cout << "(" << suits[pler[i][0]] << " , " << faces[pler[i][1]] << ")" << endl;
+	}
+	cout << "Score: " << scorepler << endl;
+	cout << "--" << endl;
+	if(getStatusOfHand(shands[0]) > scorepler) cout << "Player win!!" << endl;
+	else cout << "Dealer win!!" << endl;
+}
 // Ham chinh mau cua van ban
 void textcolor(int x)
 {
@@ -633,7 +869,7 @@ void textcolor(int x)
 	SetConsoleTextAttribute(mau, x);
 }
 
-// Hàm dịch chuyển con trỏ đến vị trí x,y
+// Hàm d?ch chuy?n con tr? d?n v? trí x,y
 void gotoxy(int x, int y)
 {
 	HANDLE hConsoleOutput;
@@ -649,9 +885,11 @@ int main()
 	int** r = NULL;
 	int n, selection, a[1000];
 	int deck[SUITS][FACES];
+	int m, turn,k = 2;
+	char y;
 	system("cls");
 	
-		for (int i = 0; i < 3; i++)
+		for (int i = 0; i < 2; i++)
 		{
 			gotoxy(1,10);
 			textcolor(12);
@@ -685,7 +923,7 @@ int main()
 		cout << "                                        *           2/ Single Player            * " << endl;
 		textcolor(10);
 		cout << "                                        *           3/ Multiplayer              *" << endl;
-		textcolor(13);
+		textcolor(15);
 		cout << "                                        *           4/ Playing with Dealer      * ";
 		textcolor(15);
 		textcolor(12);
@@ -723,9 +961,10 @@ int main()
 			cout << " \n\n -------------------------------------------------- 1 Player Mode: -------------------------------------------------- ";
 			cout << " \n  5 la bai tren tay nguoi choi la: " << endl;
 			printHand(hand, suits, faces);
-			CheckHand(hand);;
-			cout << endl;
-			system("pause");
+			CheckHand(hand);
+			cout << "\n Do you want to play again? (y/n)";
+			cin >> y;
+		
 		}
 		else if (selection == 3)
 		{
@@ -759,61 +998,44 @@ int main()
 		else if (selection == 4)
 		{
 			system("cls");
-			textcolor(13);
+			int select_dealer,select_dealer2,select_dealer3;
+			textcolor(15);
 			shuffleCards(deck);
-			printCardsShuffling(deck, suits, faces);
+		
 			hand = dealingForHand(deck);
 			cout << " \n\n -------------------------------------------------- Dealer Mode: -------------------------------------------------- ";
-			cout << " \n  5 la bai luc dau tren tay Dealer la: " << endl;
-			printHand(hand, suits, faces);
-			char highestcard = getHighestCard(hand);
-			if (isStraightFlush(hand))
+			cout << "\n                                                 1/ N Players vs Dealer";
+			cout << "\n                                                 2/ Solo with Dealer";
+			cout << "\n                                          Which mode do you want to experience: ";
+			cin  >> select_dealer;
+			if (select_dealer == 1)
 			{
-				cout << " The Dealer has a Straight of Flush !!! Impressive !!!" << endl;
-
-			}
-			else if (isFlush(hand))
-			{
-				cout << " The Dealer firstly has a Flush " << endl;
-			}
-			else if (isStraight(hand))
-			{
-				cout << " The Dealer firstly has a Straight" << endl;
-			}
-			else if (isFourOfAKind(hand))
-			{
-				cout << " The Dealer firstly has a Four of a Kind !!! Amazing !!!" << endl;
-			}
-			else if (isFullhouse(hand))
-			{
-				cout << " The Dealer firstly has a Fullhouse !!! What a beast !" << endl;
-			}
-			else if (isThreeOfAKind(hand))
-			{
-				cout << " The Dealer firstly has a Three Of A Kind " << endl;
-			}
-			else if (isTwoPairs(hand))
-			{
-				cout << " The Dealer firstly has Two Pairs" << endl;
-			}
-			else if (isPair(hand))
-			{
-				cout << " The Dealer firstly has a Pair" << endl;
-			}
-			else if (getHighestCard(hand))
-			{
-				cout << "\n The Dealer's Highest card is: " << highestcard << endl;
-			}
+			S3(hands, m, turn, deck, suits, faces);	
 			system("pause");
 		}
-		else
-		{
-			break;
-		}
-		
-		cout << endl;
+			else if (select_dealer == 2)
+			{
+				cout << "\n	                                              1/ Easy";
+				cout << "\n                                                      2/ Medium";
+				cout << "\n                                                      3/ Hard";
+				cout << "\n                                          Which mode do you want to experience: ";
+				cin  >> select_dealer2;
+				if (select_dealer2 == 1)
+				{
+					S4andS5easy(hands,k,turn,deck,suits,faces);
+				}
+				else if (select_dealer2 == 2)
+				{
+					S4andS5medium( hands, k, turn, deck,suits,faces);
+				}
+				else if (select_dealer2 == 3)
+				{
+					S4andS5hard(hands, k, turn, deck, suits, faces);
+				}
+				system("pause");
+			}
 	}
 	delete[] hand;
-	system("pause");
 	_getch();
+	}
 }
